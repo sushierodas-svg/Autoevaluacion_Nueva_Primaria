@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autoevaluación Escolaris</title>
+    <!-- Tailwind CSS para el diseño -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librerías de React estables -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel para traducir el código al instante -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- html2canvas para descargar la imagen PNG -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- CSS de Lucide Icons (Fuente de iconos ultra confiable para Canvas) -->
+    <link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -27,22 +33,20 @@
     <script type="text/babel">
         const { useState, useRef } = React;
 
-        // Componente de icono optimizado para uso directo en cliente mediante CDN seguro de SVG
+        // Componente de icono corregido con soporte total de colores de Tailwind
         const LucideIcon = ({ name, size = 24, className = "" }) => {
             return (
-                <img 
-                    src={`https://unpkg.com/lucide-static@latest/icons/${name}.svg`} 
-                    alt={name}
-                    style={{ width: size, height: size }}
-                    className={`inline-block ${className}`}
-                />
+                <i 
+                    className={`icon-${name} ${className}`} 
+                    style={{ fontSize: size, width: size, height: size, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                ></i>
             );
         };
 
         const App = () => {
             const [formData, setFormData] = useState({
                 nombre: '',
-                grado: '4° Primaria', // Sincronizado con las opciones reales
+                grado: '4° Primaria',
                 materia: 'Ciencias Naturales',
                 leccion: '',
             });
@@ -87,14 +91,11 @@
                 setIsDownloading(true);
                 if (reportRef.current) {
                     try {
-                        // Pequeña pausa para asegurar la carga del render en el DOM
                         await new Promise(resolve => setTimeout(resolve, 300));
-                        
                         const canvas = await html2canvas(reportRef.current, {
                             backgroundColor: '#ffffff',
                             scale: 2,
-                            useCORS: true,
-                            allowTaint: true
+                            useCORS: true
                         });
                         const image = canvas.toDataURL("image/png");
                         const link = document.createElement('a');
@@ -102,7 +103,7 @@
                         link.download = `Reporte_${formData.nombre.replace(/\s+/g, '_')}.png`;
                         link.click();
                     } catch (err) {
-                        console.error("Error al generar imagen:", err);
+                        console.error("Error:", err);
                         alert("No pudimos generar la imagen. Inténtalo de nuevo.");
                     }
                 }
@@ -115,8 +116,8 @@
                     <header className="bg-[#1e3a45] text-white p-5 shadow-lg border-b-4 border-[#eab308]">
                         <div className="max-w-4xl mx-auto flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="bg-white p-2 rounded-2xl rotate-3 shadow-md">
-                                    <LucideIcon name="pen-tool" className="text-[#eab308]" />
+                                <div className="bg-white p-2 rounded-2xl rotate-3 shadow-md flex items-center justify-center">
+                                    <LucideIcon name="pen-tool" className="text-[#eab308]" size={24} />
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-black leading-none text-white">ESCOLARIS</h1>
@@ -124,7 +125,7 @@
                                 </div>
                             </div>
                             <div className="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
-                                <LucideIcon name="sparkles" size={16} className="brightness-200" />
+                                <LucideIcon name="sparkles" size={16} className="text-yellow-300" />
                                 <span className="text-xs font-black uppercase tracking-wider">{formData.grado}</span>
                             </div>
                         </div>
@@ -183,7 +184,7 @@
                                         onClick={() => toggleEsfuerzo(item.id)} 
                                         className={`flex flex-col items-center p-6 rounded-[2rem] border-b-4 transition-all transform active:scale-95 ${evaluacion.esfuerzo[item.id] ? `${item.color} text-white shadow-lg border-black/10` : 'bg-slate-50 text-slate-400 border-slate-100'}`}
                                     >
-                                        <LucideIcon name={item.icon} size={32} className={`mb-3 ${evaluacion.esfuerzo[item.id] ? 'invert brightness-200' : 'opacity-40'}`} />
+                                        <LucideIcon name={item.icon} size={32} className="mb-3" />
                                         <span className="text-[10px] font-black uppercase text-center leading-none">{item.label}</span>
                                     </button>
                                 ))}
@@ -232,7 +233,7 @@
                                     >
                                         <span className="text-2xl">{item.icon}</span>
                                         <span className="font-bold text-sm">{item.label}</span>
-                                        {evaluacion.mejora[item.id] && <div className="ml-auto bg-white/20 p-1 rounded-full"><LucideIcon name="check" size={14} className="invert brightness-200" /></div>}
+                                        {evaluacion.mejora[item.id] && <div className="ml-auto bg-white/20 p-1 rounded-full"><LucideIcon name="check" size={14} /></div>}
                                     </button>
                                 ))}
                             </div>
@@ -243,8 +244,8 @@
                             <h3 className="text-2xl font-black text-[#1e3a45] mb-8">💡 ¿Cuánto aprendí?</h3>
                             <div className="flex justify-center gap-4 mb-6">
                                 {[1, 2, 3, 4, 5].map(star => (
-                                    <button key={star} onClick={() => setEvaluacion(prev => ({...prev, comprension: star}))} className={`transition-all transform hover:scale-125 ${evaluacion.comprension >= star ? 'scale-110' : 'opacity-30'}`}>
-                                        <LucideIcon name="star" size={60} className={evaluacion.comprension >= star ? "text-yellow-400" : "text-slate-300"} />
+                                    <button key={star} onClick={() => setEvaluacion(prev => ({...prev, comprension: star}))} className={`transition-all transform hover:scale-125 ${evaluacion.comprension >= star ? 'text-yellow-400 drop-shadow-md' : 'text-slate-200'}`}>
+                                        <LucideIcon name="star" size={60} className={evaluacion.comprension >= star ? "text-yellow-400" : "text-slate-200"} />
                                     </button>
                                 ))}
                             </div>
@@ -259,12 +260,12 @@
                             <button onClick={generateReport} className="px-16 py-5 rounded-[1.5rem] bg-[#eab308] text-[#1e3a45] font-black text-xl shadow-[0_10px_0_0_#ca8a04] hover:-translate-y-1 active:translate-y-1 active:shadow-none transition-all">¡FINALIZAR MI TRABAJO!</button>
                         </div>
 
-                        {/* REPORTE FINAL (MODAL) */}
+                        {/* REPORTE FINAL */}
                         {showReport && (
                             <div className="fixed inset-0 bg-[#1e3a45]/95 backdrop-blur-xl z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
                                 <div ref={reportRef} className="bg-white rounded-[2.5rem] max-w-lg w-full overflow-hidden shadow-2xl border-8 border-white mb-6 transform scale-100 transition-transform duration-300">
                                     <div className="bg-[#1e3a45] p-8 text-center text-white relative">
-                                        <LucideIcon name="award" size={64} className="mx-auto mb-4 text-yellow-400" />
+                                        <LucideIcon name="award" size={64} className="mx-auto text-yellow-400 mb-4" />
                                         <h4 className="text-2xl font-black">INSIGNIA DE LOGRO</h4>
                                         <p className="text-yellow-400 text-[10px] font-black uppercase tracking-widest">ESCOLARIS • {formData.grado}</p>
                                     </div>
@@ -285,7 +286,7 @@
                                             </div>
                                             <div className="bg-yellow-50 p-4 rounded-xl text-center border-2 border-yellow-100">
                                                 <span className="block text-[10px] font-black text-yellow-600 uppercase mb-1">Aprendizaje</span>
-                                                <div className="flex justify-center gap-0.5 mt-2">
+                                                <div className="flex justify-center text-yellow-400 gap-1 mt-2">
                                                     {[...Array(evaluacion.comprension)].map((_, i) => <LucideIcon key={i} name="star" size={16} className="text-yellow-400" />)}
                                                 </div>
                                             </div>
@@ -324,7 +325,7 @@
                                 <div className="max-w-lg w-full space-y-4">
                                     <div className="bg-white/10 border border-white/20 p-6 rounded-[2rem] text-white">
                                         <h5 className="text-center font-black text-yellow-400 uppercase mb-4 tracking-widest flex items-center justify-center gap-2">
-                                            <LucideIcon name="share-2" size={18} className="invert brightness-200" /> ¿Cómo entregar tu tarea?
+                                            <LucideIcon name="share-2" size={18} className="text-yellow-400" /> ¿Cómo entregar tu tarea?
                                         </h5>
                                         <div className="space-y-3 text-xs font-bold">
                                             <div className="flex items-center gap-3"><div className="bg-yellow-400 text-[#1e3a45] w-6 h-6 rounded-full flex items-center justify-center font-black shrink-0">1</div> Pulsa "DESCARGAR REPORTE".</div>
@@ -336,10 +337,7 @@
                                         <button onClick={() => setShowReport(false)} className="flex-1 py-4 rounded-2xl border-2 border-white/20 text-white font-black uppercase tracking-widest hover:bg-white/10 transition-all">Regresar</button>
                                         <button onClick={downloadPNG} disabled={isDownloading} className="flex-[2] py-4 rounded-2xl bg-green-500 text-white font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:bg-green-400 active:scale-95 transition-all">
                                             {isDownloading ? "Cargando..." : (
-                                                <React.Fragment>
-                                                    <LucideIcon name="download" className="invert brightness-200" /> 
-                                                    DESCARGAR REPORTE (PNG)
-                                                </React.Fragment>
+                                                <React.Fragment><LucideIcon name="download" size={18} /> DESCARGAR REPORTE (PNG)</React.Fragment>
                                             )}
                                         </button>
                                     </div>
